@@ -9,19 +9,17 @@ using System.Threading.Tasks;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
-namespace WebAPI_Project.Controllers
+namespace WebAPI_Project
 {
     [ApiController]
     [Route("[controller]")]    
     public class UsersController : ControllerBase
     {
         private IUserService _userService;
-        private readonly ILogger<UsersController> _logger;
-
-        public UsersController( IUserService aService, ILogger<UsersController> logger)
+       
+        public UsersController( IUserService aService)
         {
             _userService = aService;
-            _logger = logger;
 
         }
 
@@ -31,8 +29,8 @@ namespace WebAPI_Project.Controllers
         {
             List<string> alist = new List<string>();
 
-            alist.Add("Smeja1");
-            alist.Add("Smeja2");
+            alist.Add("s1");
+            alist.Add("s2");
 
             return alist;
 
@@ -67,8 +65,29 @@ namespace WebAPI_Project.Controllers
                 return BadRequest("Supplied user list is empty.");
             }
 
-            return gitUserList;
+            return Ok(gitUserList); 
         }
+
+
+
+        [HttpPost, Route("RetrieveUsers")]
+        public async Task<ActionResult<List<User>>> RetrieveUsersList([FromBody] List<UserRequest> userList)
+        {
+            List<User> gitUserList = new List<User>();
+
+            if (userList != null && userList.Count > 0)
+            {
+                gitUserList = await _userService.GetUserListFromGit(userList);
+            }
+            else
+            {
+                return BadRequest("Supplied user list is empty.");
+            }
+
+            return Ok(gitUserList);
+        }
+
+
 
     }
 }

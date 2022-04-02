@@ -1,4 +1,6 @@
-﻿namespace WebAPI_Project
+﻿using System;
+
+namespace WebAPI_Project
 {
     public class User
     {
@@ -11,13 +13,15 @@
 
         public long public_repos { get; set; }
 
-        public double avg_Followers_Per_Repo
+        public decimal avg_Followers_Per_Repo
         {
             get
             {
                 if (public_repos > 0)
                 {
-                    return followers / public_repos;
+                                       
+                    return Math.Round(Decimal.Divide(followers, public_repos), 2);
+
                 }
                 else
                 {
