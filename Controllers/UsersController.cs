@@ -16,11 +16,12 @@ namespace WebAPI_Project
     public class UsersController : ControllerBase
     {
         private IUserService _userService;
+        private IHttpClientFactory _httpClient;
        
-        public UsersController( IUserService aService)
+        public UsersController( IUserService aService, IHttpClientFactory client)
         {
             _userService = aService;
-
+            _httpClient = client;
         }
 
 
@@ -36,37 +37,37 @@ namespace WebAPI_Project
 
         }
 
-        [HttpPost, Route("RetrieveUsers")]
-        public async Task<ActionResult<List<User>>> RetrieveUsers([FromBody] List<UserRequest> userList)
-        {
-            List<User> gitUserList = new List<User>();
+        //[HttpPost, Route("RetrieveUser")]
+        //public async Task<ActionResult<List<User>>> RetrieveUser([FromBody] List<UserRequest> userList)
+        //{
+        //    List<User> gitUserList = new List<User>();
 
-            if (userList != null && userList.Count > 0)
-            {
-                foreach (var u in userList)
-                {
-                    var aGitUser = await _userService.GetUserFromGit(u.gitName);
+        //    if (userList != null && userList.Count > 0)
+        //    {
+        //        foreach (var u in userList)
+        //        {
+        //            var aGitUser = await _userService.GetUserFromGit(u.gitName);
 
-                    if (aGitUser == null)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        if (aGitUser.id > 0)
-                        {
-                            gitUserList.Add(aGitUser);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                return BadRequest("Supplied user list is empty.");
-            }
+        //            if (aGitUser == null)
+        //            {
+        //                continue;
+        //            }
+        //            else
+        //            {
+        //                if (aGitUser.id > 0)
+        //                {
+        //                    gitUserList.Add(aGitUser);
+        //                }
+        //            }
+        //        }
+        //    }
+        //    else
+        //    {
+        //        return BadRequest("Supplied user list is empty.");
+        //    }
 
-            return Ok(gitUserList); 
-        }
+        //    return Ok(gitUserList); 
+        //}
 
 
 

@@ -26,6 +26,7 @@ namespace WebAPI_Project
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddHttpClient();
             services.AddScoped<IUserService, UserService>();
         }
 

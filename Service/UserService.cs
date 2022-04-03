@@ -10,77 +10,81 @@ namespace WebAPI_Project
 {
     public interface IUserService
     {
-        Task<User> GetUserFromGit(string userName);
+       // Task<User> GetUserFromGit(string userName);
         Task<List<User>> GetUserListFromGit(List<UserRequest> userList);
     }
 
     public class UserService : IUserService
     {
         private IConfiguration _config;
-        public UserService(IConfiguration aConfig)
+
+        private readonly IHttpClientFactory _httpClient;
+        public UserService(IConfiguration aConfig, IHttpClientFactory aclient)
         {
             _config = aConfig;
+            _httpClient = aclient;
         }
-        public async Task<User> GetUserFromGit(string userName)
-        {
+        //public async Task<User> GetUserFromGit(string userName)
+        //{
+        //    string gitAPIURL = _config.GetValue(typeof(string), "GITAPIUrl") + userName;
 
-            string gitAPIURL = _config.GetValue(typeof(string), "GITAPIUrl") + userName;
+        //    _httpClient.DefaultRequestHeaders.Add("User-Agent", "my-user-agent-name");
+        //    var request = new HttpRequestMessage(HttpMethod.Get, gitAPIURL);
+        //    var authHeasderValue = new AuthenticationHeaderValue("Basic");
+        //    request.Headers.Authorization = authHeasderValue;
 
-            using (var httpClient = new HttpClient())
-            {
-                httpClient.DefaultRequestHeaders.Add("User-Agent", "my-user-agent-name");
-                var request = new HttpRequestMessage(HttpMethod.Get, gitAPIURL);
-                var authHeasderValue = new AuthenticationHeaderValue("Basic");
-                request.Headers.Authorization = authHeasderValue;
+        //    var response = await _httpClient.GetAsync(gitAPIURL);
 
-                using (var response = await httpClient.GetAsync(gitAPIURL))
-                { 
-                    var apiResponse = await response.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<User>(apiResponse);
-                }
-            }
-        }
+        //    var apiResponse = await response.Content.ReadAsStringAsync();
+        //    return JsonConvert.DeserializeObject<User>(apiResponse);
+
+        //}
+
 
 
         public async Task<List<User>> GetUserListFromGit(List<UserRequest> userList)
         {
-            List<User> gitUserList = new List<User>();
-            string gitAPIURL = _config.GetValue(typeof(string), "GITAPIUrl").ToString();
-
-            foreach (var u in userList)
+            try
             {
-                gitAPIURL = _config.GetValue(typeof(string), "GITAPIUrl").ToString();
+                List<User> gitUserList = new List<User>();
 
-                using (var httpClient = new HttpClient())
+                foreach (var u in userList)
                 {
-                    httpClient.DefaultRequestHeaders.Add("User-Agent", "my-user-agent-name");
-                    var request = new HttpRequestMessage(HttpMethod.Get, gitAPIURL);
-                    var authHeasderValue = new AuthenticationHeaderValue("Basic");
-                    request.Headers.Authorization = authHeasderValue;
-
-                    using (var response = await httpClient.GetAsync(gitAPIURL))
+                    string gitAPIURL = _config.GetValue(typeof(string), "GITAPIUrl").ToString() + u.gitName;
+                    using (var httpClient = new HttpClient())
                     {
-                        var apiResponse = await response.Content.ReadAsStringAsync();
-                        User resUser = JsonConvert.DeserializeObject<User>(apiResponse);
+                        httpClient.DefaultRequestHeaders.Add("User-Agent", "my-user-agent-name");
+                        var request = new HttpRequestMessage(HttpMethod.Get, gitAPIURL);
+                        var authHeasderValue = new AuthenticationHeaderValue("Basic");
+                        request.Headers.Authorization = authHeasderValue;
 
-                        if (resUser == null)
+                        using (var response = await httpClient.GetAsync(gitAPIURL))
                         {
-                            continue;
-                        }
-                        else
-                        {
-                            if (resUser.id > 0)
+                            var apiResponse = await response.Content.ReadAsStringAsync();
+                            User resUser = JsonConvert.DeserializeObject<User>(apiResponse);
+
+                            if (resUser == null)
                             {
-                                gitUserList.Add(resUser);
+                                continue;
+                            }
+                            else
+                            {
+                                if (resUser.id > 0)
+                                {
+                                    gitUserList.Add(resUser);
+                                }
                             }
                         }
                     }
                 }
+
+                return gitUserList;
             }
-
-            return gitUserList;
+            catch (Exception ex)
+            {
+                throw ex;
+            }
         }
-
 
     }
 }
